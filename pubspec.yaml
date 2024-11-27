@@ -18,4 +18,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/
+    - assets/images/
+    - assets/images/Favorite/
+    - assets/images/Home/
+    - assets/images/makanan/
+    - assets/images/Recent/
+    - assets/images/Recommend/
+    - assets/images/See All/
+    - assets/images/Sosmed/
+    - assets/images/Uploud/
+    - assets/images/Video/
