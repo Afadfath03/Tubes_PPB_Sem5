@@ -13,7 +13,7 @@ class PageLogin extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/images/main_background.png"),
+                image: AssetImage('assets/images/main_background.png'),
                 fit: BoxFit.cover,
               ),
             ),
