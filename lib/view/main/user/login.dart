@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tubes_ppb_sem5/view/main/home.dart';
 import 'package:tubes_ppb_sem5/view/main/user/register.dart';
+import 'package:tubes_ppb_sem5/model/widgets/Button/Cosbutton.dart';
 
 class PageLogin extends StatelessWidget {
   const PageLogin({super.key});
@@ -97,7 +98,10 @@ class PageLogin extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
+                    cosButton(
+                      label: "Login",
+                      color: Colors.orange,
+                      icon: Icons.login,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -105,37 +109,8 @@ class PageLogin extends StatelessWidget {
                               builder: (context) => const PageHome()),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Login",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 16),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     IconButton(
-                    //       icon: Icon(Icons.google, color: Colors.white),
-                    //       onPressed: () {},
-                    //     ),
-                    //     IconButton(
-                    //       icon: Icon(Icons.facebook, color: Colors.white),
-                    //       onPressed: () {},
-                    //     ),
-                    //   ],
-                    // ),
                     const SizedBox(height: 24),
                     TextButton(
                       onPressed: () {

@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-class Colors {
+class ColorsCollection {
   static const Color primary = Color(0xFF121212);
   static const Color accentOrange = Color(0xFFFF7F3F);
   static const Color accentWhite = Color(0xFFFFFFFF);
