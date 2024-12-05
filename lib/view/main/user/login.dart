@@ -29,12 +29,14 @@ class PageLogin extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Column(
+                    Column(
                       children: [
-                        Icon(Icons.restaurant_menu,
-                            size: 80, color: Colors.pink),
-                        SizedBox(height: 8),
-                        Text(
+                        Image.asset(
+                          'assets/images/logo_chef.png',
+                          height: 80, 
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
                           "CHEF DADAKAN",
                           style: TextStyle(
                             color: Colors.white,
@@ -42,7 +44,7 @@ class PageLogin extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
+                        const Text(
                           "Cook in easy way",
                           style: TextStyle(
                             color: Colors.white70,
