@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tubes_ppb_sem5/view/main/user/login.dart';
 
-void main() => runApp(const PageRegister());
-
 class PageRegister extends StatelessWidget {
   const PageRegister({super.key});
 
@@ -11,16 +9,18 @@ class PageRegister extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
+          // Background Image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/main_background.jpg'),
+                image: AssetImage('assets/images/main_background.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
+          // Transparent overlay
           Container(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withOpacity(0.3),
           ),
           Center(
             child: SingleChildScrollView(
@@ -29,11 +29,12 @@ class PageRegister extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Logo Section
                     Column(
                       children: [
                         Image.asset(
                           'assets/images/logo_chef.png',
-                          height: 80, 
+                          height: 80,
                         ),
                         const SizedBox(height: 8),
                         const Text(
@@ -54,84 +55,37 @@ class PageRegister extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 40),
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Full Name",
-                        hintStyle: const TextStyle(color: Colors.white70),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide.none,
-                        ),
-                        prefixIcon:
-                            const Icon(Icons.person, color: Colors.white70),
-                      ),
-                      style: const TextStyle(color: Colors.white),
+                    // Input Fields
+                    _buildInputField(
+                      hintText: "Full Name",
+                      icon: Icons.person,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Email Address",
-                        hintStyle: const TextStyle(color: Colors.white70),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide.none,
-                        ),
-                        prefixIcon:
-                            const Icon(Icons.email, color: Colors.white70),
-                      ),
-                      style: const TextStyle(color: Colors.white),
-                      keyboardType: TextInputType.emailAddress,
+                    _buildInputField(
+                      hintText: "Email Address",
+                      icon: Icons.email,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        hintStyle: const TextStyle(color: Colors.white70),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide.none,
-                        ),
-                        prefixIcon:
-                            const Icon(Icons.lock, color: Colors.white70),
-                        suffixIcon:
-                            const Icon(Icons.visibility, color: Colors.white70),
-                      ),
-                      style: const TextStyle(color: Colors.white),
+                    _buildInputField(
+                      hintText: "Password",
+                      icon: Icons.lock,
+                      isPassword: true,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: "Confirm Password",
-                        hintStyle: const TextStyle(color: Colors.white70),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide.none,
-                        ),
-                        prefixIcon:
-                            const Icon(Icons.lock, color: Colors.white70),
-                        suffixIcon:
-                            const Icon(Icons.visibility, color: Colors.white70),
-                      ),
-                      style: const TextStyle(color: Colors.white),
+                    _buildInputField(
+                      hintText: "Confirm Password",
+                      icon: Icons.lock,
+                      isPassword: true,
                     ),
                     const SizedBox(height: 24),
+                    // Register Button
                     ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: const Center(
@@ -144,21 +98,8 @@ class PageRegister extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     IconButton(
-                    //       icon: Icon(Icons.google, color: Colors.white),
-                    //       onPressed: () {},
-                    //     ),
-                    //     IconButton(
-                    //       icon: Icon(Icons.facebook, color: Colors.white),
-                    //       onPressed: () {},
-                    //     ),
-                    //   ],
-                    // ),
                     const SizedBox(height: 24),
+                    // Login Navigation
                     TextButton(
                       onPressed: () {
                         Navigator.push(
@@ -187,6 +128,31 @@ class PageRegister extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildInputField({
+    required String hintText,
+    required IconData icon,
+    bool isPassword = false,
+  }) {
+    return TextField(
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.white70),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.orange),
+        ),
+        prefixIcon: Icon(icon, color: Colors.white70),
+        suffixIcon: isPassword
+            ? const Icon(Icons.visibility, color: Colors.white70)
+            : null,
+      ),
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
