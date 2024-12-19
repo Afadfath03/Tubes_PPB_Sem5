@@ -20,8 +20,11 @@ flutter:
   assets:
     - assets/images/
     - assets/images/Favorite/
-    - assets/images/Home/
-    - assets/images/makanan/
+    - assets/images/Home/cak_kangkung.png
+    - assets/images/Home/mie_nyemek.png
+    - assets/images/Home/nasi_goreng_di.png
+    - assets/images/Home/tahu_cabe_garam.png
+    - assets/images/Home/telur_orak_arik.png
     - assets/images/Recent/
     - assets/images/Recommend/
     - assets/images/See_All/
@@ -30,3 +33,9 @@ flutter:
     - assets/images/Video/
     - assets/images/google_icon.png
     - assets/images/facebook_icon.jpg
+  fonts:
+    - family: Lora
+      fonts:
+        - asset: assets/fonts/Lora-Regular.ttf
+        - asset: assets/fonts/Lora-Bold.ttf
+          weight: 700
