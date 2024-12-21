@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tubes_ppb_sem5/view/main/see_all.dart';
+import 'package:tubes_ppb_sem5/view/main/recommended.dart'; // Import halaman Recommended
+import 'package:tubes_ppb_sem5/view/sidemenu.dart';
 
 class PageHome extends StatelessWidget {
   const PageHome({super.key});
@@ -22,7 +25,16 @@ class PageHome extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.menu, color: Colors.white),
+                    IconButton(
+                      icon: const Icon(Icons.menu, color: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SideMenu()),
+                        );
+                      },
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -78,32 +90,41 @@ class PageHome extends StatelessWidget {
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "Today's Fresh Recipe",
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    Text(
-                      "See All",
-                      style: TextStyle(color: Colors.orange, fontSize: 16),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PageSeeAll()),
+                        );
+                      },
+                      child: const Text(
+                        "See All",
+                        style: TextStyle(color: Colors.orange, fontSize: 16),
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
-                  height: 200,
+                  height: 220, // Tinggi item diperbesar
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
                       _buildRecipeCard(
                         title: 'Nasi Goreng',
-                        image: 'assets/images/Home/nasi_goreng.png',
+                        image: 'assets/images/Home/nasi_goreng_di.png',
                         category: 'Breakfast',
                         duration: '15:00',
                       ),
                       _buildRecipeCard(
-                        title: 'Cah Kangkung',
-                        image: 'assets/images/Home/cah_kangkung.png',
+                        title: 'Cak Kangkung',
+                        image: 'assets/images/Home/cak_kangkung.png',
                         category: 'Dinner',
                         duration: '30:00',
                       ),
@@ -113,14 +134,23 @@ class PageHome extends StatelessWidget {
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "Recommended",
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    Text(
-                      "See All",
-                      style: TextStyle(color: Colors.orange, fontSize: 16),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PageRecommended()),
+                        );
+                      },
+                      child: const Text(
+                        "See All",
+                        style: TextStyle(color: Colors.orange, fontSize: 16),
+                      ),
                     ),
                   ],
                 ),
@@ -139,8 +169,8 @@ class PageHome extends StatelessWidget {
                         duration: '05:00',
                       ),
                       _buildRecommendedCard(
-                        title: 'Cah Kangkung',
-                        image: 'assets/images/Home/cah_kangkung.png',
+                        title: 'Cak Kangkung',
+                        image: 'assets/images/Home/cak_kangkung.png',
                         duration: '30:00',
                       ),
                       _buildRecommendedCard(
@@ -166,27 +196,44 @@ class PageHome extends StatelessWidget {
     required String duration,
   }) {
     return Container(
-      width: 150,
+      width: 180, // Lebar lebih besar agar lebih terekspose
       margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        image: DecorationImage(
-          image: AssetImage(image),
-          fit: BoxFit.cover,
-        ),
+        color: Colors.black.withOpacity(0.4), // Latar belakang semi-transparan
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.4), // Warna bayangan transparan
+            blurRadius: 6,
+            offset: const Offset(0, 4), // Bayangan ke bawah
+          ),
+        ],
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            bottom: 8,
-            left: 8,
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              topRight: Radius.circular(12),
+            ),
+            child: Image.asset(
+              image,
+              height: 120,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   category,
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  style: const TextStyle(color: Colors.orange, fontSize: 12),
                 ),
+                const SizedBox(height: 4),
                 Text(
                   title,
                   style: const TextStyle(
@@ -195,9 +242,19 @@ class PageHome extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  duration,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.timer, color: Colors.orange, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      duration,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -214,17 +271,27 @@ class PageHome extends StatelessWidget {
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.4), // Latar belakang semi-transparan
+        borderRadius: BorderRadius.circular(20), // Sudut lebih melengkung
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.4), // Shadow transparan
+            blurRadius: 6, // Membuat bayangan lebih halus
+            offset: const Offset(0, 4), // Bayangan ke bawah
+          ),
+        ],
+      ),
       child: Row(
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              image: DecorationImage(
-                image: AssetImage(image),
-                fit: BoxFit.cover,
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12), // Lengkung untuk gambar
+            child: Image.asset(
+              image,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: 16),
@@ -247,14 +314,18 @@ class PageHome extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       duration,
-                      style: const TextStyle(color: Colors.white70, fontSize: 14),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          const Icon(Icons.favorite_border, color: Colors.orange),
+          IconButton(
+            icon: const Icon(Icons.favorite_border, color: Colors.orange),
+            onPressed: () {},
+          ),
         ],
       ),
     );

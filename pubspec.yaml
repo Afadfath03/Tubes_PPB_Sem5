@@ -1,6 +1,6 @@
 name: tubes_ppb_sem5
 description: "Project Flutter untuk tubes"
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -19,7 +19,13 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/images/Favorite/
+    - assets/images/Favorite/cak_kangkung.png
+    - assets/images/Favorite/mie_nyemek.png
+    - assets/images/Favorite/nasi_goreng.png
+    - assets/images/Favorite/tahu_cabe_garam.png
+    - assets/images/Favorite/telur_orak_arik.png
+    - assets/images/Favorite/telur_sosis.png
+    - assets/images/Favorite/tumis_jamur.png
     - assets/images/Home/cak_kangkung.png
     - assets/images/Home/mie_nyemek.png
     - assets/images/Home/nasi_goreng_di.png
