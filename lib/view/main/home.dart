@@ -1,10 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:tubes_ppb_sem5/view/main/see_all.dart';
-import 'package:tubes_ppb_sem5/view/main/recommended.dart'; // Import halaman Recommended
+import 'package:tubes_ppb_sem5/services/database.dart';
 import 'package:tubes_ppb_sem5/view/sidemenu.dart';
 
-class PageHome extends StatelessWidget {
+class PageHome extends StatefulWidget {
   const PageHome({super.key});
+
+  @override
+  _PageHomeState createState() => _PageHomeState();
+}
+
+class _PageHomeState extends State<PageHome> {
+  List<Map<String, dynamic>> makanan = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  void _fetchData() async {
+    DatabaseService dbService = DatabaseService();
+    final data = await dbService.getMakanan();
+    setState(() {
+      makanan = data;
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,129 +80,31 @@ class PageHome extends StatelessWidget {
                   'Mau masak apa kamu hari ini?',
                   style: TextStyle(color: Colors.orange, fontSize: 20),
                 ),
+                const SizedBox(height: 24),
+                const Text(
+                  "Today's Fresh Recipe",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: 'Search Recipe',
-                          prefixIcon:
-                              const Icon(Icons.search, color: Colors.black),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SizedBox(
+                        height: 220,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: makanan.length,
+                          itemBuilder: (context, index) {
+                            final item = makanan[index];
+                            return _buildRecipeCard(
+                              title: item['name'],
+                              image: 'assets/images/Home/${item['img']}',
+                              category: 'Breakfast', // Sesuaikan kategori
+                              duration: '15:00', // Sesuaikan durasi
+                            );
+                          },
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.filter_list, color: Colors.white),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Today's Fresh Recipe",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PageSeeAll()),
-                        );
-                      },
-                      child: const Text(
-                        "See All",
-                        style: TextStyle(color: Colors.orange, fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 220, // Tinggi item diperbesar
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildRecipeCard(
-                        title: 'Nasi Goreng',
-                        image: 'assets/images/Home/nasi_goreng_di.png',
-                        category: 'Breakfast',
-                        duration: '15:00',
-                      ),
-                      _buildRecipeCard(
-                        title: 'Cak Kangkung',
-                        image: 'assets/images/Home/cak_kangkung.png',
-                        category: 'Dinner',
-                        duration: '30:00',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Recommended",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PageRecommended()),
-                        );
-                      },
-                      child: const Text(
-                        "See All",
-                        style: TextStyle(color: Colors.orange, fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      _buildRecommendedCard(
-                        title: 'Tahu Cabe Garam',
-                        image: 'assets/images/Home/tahu_cabe_garam.png',
-                        duration: '10:03',
-                      ),
-                      _buildRecommendedCard(
-                        title: 'Telur Orak Arik',
-                        image: 'assets/images/Home/telur_orak_arik.png',
-                        duration: '05:00',
-                      ),
-                      _buildRecommendedCard(
-                        title: 'Cak Kangkung',
-                        image: 'assets/images/Home/cak_kangkung.png',
-                        duration: '30:00',
-                      ),
-                      _buildRecommendedCard(
-                        title: 'Mie Nyemek',
-                        image: 'assets/images/Home/mie_nyemek.png',
-                        duration: '15:00',
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -195,17 +119,18 @@ class PageHome extends StatelessWidget {
     required String category,
     required String duration,
   }) {
+    print("Loading image: $image"); // Tambahkan log untuk debugging
     return Container(
-      width: 180, // Lebar lebih besar agar lebih terekspose
+      width: 180,
       margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.4), // Latar belakang semi-transparan
+        color: Colors.black.withOpacity(0.4),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.4), // Warna bayangan transparan
+            color: Colors.grey.withOpacity(0.4),
             blurRadius: 6,
-            offset: const Offset(0, 4), // Bayangan ke bawah
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -222,6 +147,14 @@ class PageHome extends StatelessWidget {
               height: 120,
               width: double.infinity,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(
+                  child: Text(
+                    'Image not found',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                );
+              },
             ),
           ),
           Padding(
@@ -258,73 +191,6 @@ class PageHome extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecommendedCard({
-    required String title,
-    required String image,
-    required String duration,
-  }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.4), // Latar belakang semi-transparan
-        borderRadius: BorderRadius.circular(20), // Sudut lebih melengkung
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.4), // Shadow transparan
-            blurRadius: 6, // Membuat bayangan lebih halus
-            offset: const Offset(0, 4), // Bayangan ke bawah
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12), // Lengkung untuk gambar
-            child: Image.asset(
-              image,
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.timer, color: Colors.orange, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      duration,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 14),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.favorite_border, color: Colors.orange),
-            onPressed: () {},
           ),
         ],
       ),
