@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tubes_ppb_sem5/services/database.dart';
+import 'package:tubes_ppb_sem5/services/user_data.dart';
 import 'package:tubes_ppb_sem5/view/sidemenu.dart';
 
 class PageHome extends StatefulWidget {
@@ -10,8 +11,10 @@ class PageHome extends StatefulWidget {
 }
 
 class _PageHomeState extends State<PageHome> {
+  late final dynamic userData;
   List<Map<String, dynamic>> makanan = [];
   bool isLoading = true;
+  String namaUser = '';
 
   @override
   void initState() {
@@ -20,10 +23,19 @@ class _PageHomeState extends State<PageHome> {
   }
 
   void _fetchData() async {
+    // Fetch data user
+    UserData userDataService = UserData();
+    await userDataService.fetchUserData();
+    userData = userDataService.userData;
+
+    // Fetch data makanan
     DatabaseService dbService = DatabaseService();
     final data = await dbService.getMakanan();
+
+    // Update state
     setState(() {
       makanan = data;
+      namaUser = userData['nickname'];
       isLoading = false;
     });
   }
@@ -52,8 +64,7 @@ class _PageHomeState extends State<PageHome> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const SideMenu()),
+                          MaterialPageRoute(builder: (context) => SideMenu()),
                         );
                       },
                     ),
@@ -61,13 +72,13 @@ class _PageHomeState extends State<PageHome> {
                 ),
                 const SizedBox(height: 20),
                 RichText(
-                  text: const TextSpan(
+                  text: TextSpan(
                     text: 'Selamat Datang ',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
+                    style: const TextStyle(color: Colors.white, fontSize: 24),
                     children: [
                       TextSpan(
-                        text: 'Aziz',
-                        style: TextStyle(
+                        text: namaUser,
+                        style: const TextStyle(
                           color: Colors.orange,
                           fontWeight: FontWeight.bold,
                         ),

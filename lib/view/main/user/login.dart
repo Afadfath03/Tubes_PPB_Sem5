@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:tubes_ppb_sem5/services/user_auth.dart';
 import 'package:tubes_ppb_sem5/view/main/home.dart';
 import 'package:tubes_ppb_sem5/view/main/user/register.dart';
 
 class PageLogin extends StatelessWidget {
-  const PageLogin({super.key});
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  PageLogin({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,31 +61,46 @@ class PageLogin extends StatelessWidget {
                     _buildInputField(
                       hintText: "Email Address",
                       icon: Icons.email,
+                      controller: _emailController,
                     ),
                     const SizedBox(height: 16),
                     _buildInputField(
                       hintText: "Password",
                       icon: Icons.lock,
                       isPassword: true,
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "Forgot Password?",
-                          style: TextStyle(color: Colors.orange),
-                        ),
-                      ),
+                      controller: _passwordController,
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PageHome()),
-                        );
+                      onPressed: () async {
+                        if (_emailController.text.isEmpty ||
+                            _passwordController.text.isEmpty) {
+                          _showErrorDialog(
+                              context, "Email dan password wajib diisi");
+                        } else if (_passwordController.text.length < 6) {
+                          _showErrorDialog(
+                              context, "Password minimal 6 karakter");
+                        } else if (!_isValidEmail(_emailController.text)) {
+                          _showErrorDialog(context, "Email tidak valid");
+                        } else {
+                          try {
+                            await _authService.logInAccount(
+                              _emailController.text,
+                              _passwordController.text,
+                            );
+
+                            _emailController.clear();
+                            _passwordController.clear();
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const PageHome()),
+                            );
+                          } catch (e) {
+                            _showErrorDialog(context, e.toString());
+                          }
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
@@ -102,10 +122,10 @@ class PageLogin extends StatelessWidget {
                     const SizedBox(height: 24),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const PageRegister()),
+                              builder: (context) => PageRegister()),
                         );
                       },
                       child: const Text.rich(
@@ -134,9 +154,11 @@ class PageLogin extends StatelessWidget {
   Widget _buildInputField({
     required String hintText,
     required IconData icon,
+    required TextEditingController controller,
     bool isPassword = false,
   }) {
     return TextField(
+      controller: controller,
       obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hintText,
@@ -148,11 +170,20 @@ class PageLogin extends StatelessWidget {
           borderSide: BorderSide(color: Colors.orange),
         ),
         prefixIcon: Icon(icon, color: Colors.white70),
-        suffixIcon: isPassword
-            ? const Icon(Icons.visibility, color: Colors.white70)
-            : null,
       ),
       style: const TextStyle(color: Colors.white),
     );
   }
+
+  void _showErrorDialog(BuildContext context, dynamic e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(e.toString()),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  bool _isValidEmail(String email) =>
+      email.contains("@") && email.contains(".");
 }

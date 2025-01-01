@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:tubes_ppb_sem5/services/user_data.dart';
 import 'package:tubes_ppb_sem5/view/main/favourite.dart';
+import 'package:tubes_ppb_sem5/services/user_auth.dart';
+
+Future<String> getfullname() async {
+  UserData userDataService = UserData();
+  await userDataService.fetchUserData();
+  late final dynamic userData;
+  userData = userDataService.userData;
+  return userData['nickname'];
+}
 
 class SideMenu extends StatelessWidget {
-  const SideMenu({super.key});
+  SideMenu({super.key});
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +48,32 @@ class SideMenu extends StatelessWidget {
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Aziz',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      children: [
+                        FutureBuilder<String>(
+                          future: getfullname(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(
+                                snapshot.data.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            } else {
+                              return const Text(
+                                'Loading...',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            }
+                          },
                         ),
-                        Text(
+                        const Text(
                           'View Profile',
                           style: TextStyle(
                             color: Colors.orange,
@@ -87,7 +114,9 @@ class SideMenu extends StatelessWidget {
                   icon: Icons.logout,
                   title: 'Logout',
                   onTap: () {
-                    // Tambahkan fungsi Logout
+                    _authService.signOut();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/', (Route<dynamic> route) => false);
                   },
                 ),
               ],

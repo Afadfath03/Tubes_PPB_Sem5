@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:tubes_ppb_sem5/services/user_auth.dart';
 import 'package:tubes_ppb_sem5/view/main/user/login.dart';
 
 class PageRegister extends StatelessWidget {
-  const PageRegister({super.key});
+  PageRegister({super.key});
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -59,28 +67,67 @@ class PageRegister extends StatelessWidget {
                     _buildInputField(
                       hintText: "Full Name",
                       icon: Icons.person,
+                      txtController: _nameController,
                     ),
                     const SizedBox(height: 16),
                     _buildInputField(
                       hintText: "Email Address",
                       icon: Icons.email,
+                      txtController: _emailController,
                     ),
                     const SizedBox(height: 16),
                     _buildInputField(
                       hintText: "Password",
                       icon: Icons.lock,
                       isPassword: true,
+                      txtController: _passwordController,
                     ),
                     const SizedBox(height: 16),
                     _buildInputField(
                       hintText: "Confirm Password",
                       icon: Icons.lock,
                       isPassword: true,
+                      txtController: _confirmPasswordController,
                     ),
                     const SizedBox(height: 24),
                     // Register Button
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        if (_passwordController.text ==
+                            _confirmPasswordController.text) {
+                          try {
+                            await _authService.registerAccount(
+                              _emailController.text,
+                              _passwordController.text,
+                              _nameController.text,
+                            );
+
+                            _nameController.clear();
+                            _emailController.clear();
+                            _passwordController.clear();
+                            _confirmPasswordController.clear();
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PageLogin(),
+                              ),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(e.toString()),
+                              ),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Password mismatch"),
+                            ),
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -104,8 +151,7 @@ class PageRegister extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const PageLogin()),
+                          MaterialPageRoute(builder: (context) => PageLogin()),
                         );
                       },
                       child: const Text.rich(
@@ -134,6 +180,7 @@ class PageRegister extends StatelessWidget {
   Widget _buildInputField({
     required String hintText,
     required IconData icon,
+    required TextEditingController txtController,
     bool isPassword = false,
   }) {
     return TextField(
@@ -153,6 +200,7 @@ class PageRegister extends StatelessWidget {
             : null,
       ),
       style: const TextStyle(color: Colors.white),
+      controller: txtController,
     );
   }
 }
