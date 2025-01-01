@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tubes_ppb_sem5/services/database.dart';
 import 'package:tubes_ppb_sem5/services/user_data.dart';
+
+import 'package:tubes_ppb_sem5/view/main/recipe.dart';
 import 'package:tubes_ppb_sem5/view/sidemenu.dart';
 
 class PageHome extends StatefulWidget {
@@ -23,12 +25,12 @@ class _PageHomeState extends State<PageHome> {
   }
 
   void _fetchData() async {
-    // Fetch data user
+    // Fetch user data
     UserData userDataService = UserData();
     await userDataService.fetchUserData();
     userData = userDataService.userData;
 
-    // Fetch data makanan
+    // Fetch makanan data
     DatabaseService dbService = DatabaseService();
     final data = await dbService.getMakanan();
 
@@ -106,12 +108,7 @@ class _PageHomeState extends State<PageHome> {
                           itemCount: makanan.length,
                           itemBuilder: (context, index) {
                             final item = makanan[index];
-                            return _buildRecipeCard(
-                              title: item['name'],
-                              image: 'assets/images/Home/${item['img']}',
-                              category: 'Breakfast', // Sesuaikan kategori
-                              duration: '15:00', // Sesuaikan durasi
-                            );
+                            return _buildRecipeCard(item);
                           },
                         ),
                       ),
@@ -124,86 +121,87 @@ class _PageHomeState extends State<PageHome> {
     );
   }
 
-  Widget _buildRecipeCard({
-    required String title,
-    required String image,
-    required String category,
-    required String duration,
-  }) {
-    print("Loading image: $image"); // Tambahkan log untuk debugging
-    return Container(
-      width: 180,
-      margin: const EdgeInsets.only(right: 16),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.4),
-            blurRadius: 6,
-            offset: const Offset(0, 4),
+  Widget _buildRecipeCard(Map<String, dynamic> item) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PageRecipe(recipe: item),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
+        );
+      },
+      child: Container(
+        width: 180,
+        margin: const EdgeInsets.only(right: 16),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.4),
+              blurRadius: 6,
+              offset: const Offset(0, 4),
             ),
-            child: Image.asset(
-              image,
-              height: 120,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Center(
-                  child: Text(
-                    'Image not found',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category,
-                  style: const TextStyle(color: Colors.orange, fontSize: 12),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.timer, color: Colors.orange, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      duration,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+              child: Image.asset(
+                'assets/images/Home/${item['img']}',
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Text(
+                      'Image not found',
+                      style: TextStyle(color: Colors.red),
                     ),
-                  ],
-                ),
-              ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Breakfast', // Placeholder kategori
+                    style: TextStyle(color: Colors.orange, fontSize: 12),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    item['name'],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.timer, color: Colors.orange, size: 16),
+                      const SizedBox(width: 4),
+                      const Text(
+                        '15:00', // Placeholder durasi
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

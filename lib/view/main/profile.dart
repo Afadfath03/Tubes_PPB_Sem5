@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tubes_ppb_sem5/view/main/profile/upload.dart';
+import 'package:tubes_ppb_sem5/services/user_data.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -15,25 +17,29 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   File? _profileImage;
   String? _profileImageUrl; // URL dari foto profil di Firebase
+  String? _email; // Email pengguna
+  String? _fullName; // Nama lengkap pengguna
   final List<Map<String, dynamic>> _recipes = []; // Data untuk grid resep
   final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _fetchProfileImage(); // Ambil URL foto profil dari Firestore
+    _fetchUserProfile(); // Ambil data profil pengguna
   }
 
-  Future<void> _fetchProfileImage() async {
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc('RW7xppDpyNfBdcNh5a3HxpD9yJd2') // Ganti dengan ID dokumen user Anda
-        .get();
+  Future<void> _fetchUserProfile() async {
+    try {
+      UserData userDataService = UserData();
+      await userDataService.fetchUserData(); // Ambil data dari Firestore
 
-    if (userDoc.exists && userDoc.data()!['profileImageUrl'] != null) {
       setState(() {
-        _profileImageUrl = userDoc.data()!['profileImageUrl'];
+        final userData = userDataService.userData;
+        _email = userData?['email'];
+        _fullName = userData?['fullName'];
       });
+    } catch (e) {
+      print("Error fetching user profile: $e");
     }
   }
 
@@ -58,14 +64,17 @@ class _ProfilePageState extends State<ProfilePage> {
       final imageUrl = await uploadTask.ref.getDownloadURL();
 
       // Simpan URL ke Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc('RW7xppDpyNfBdcNh5a3HxpD9yJd2') // Ganti dengan ID dokumen user Anda
-          .update({'profileImageUrl': imageUrl});
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({'profileImageUrl': imageUrl});
 
-      setState(() {
-        _profileImageUrl = imageUrl;
-      });
+        setState(() {
+          _profileImageUrl = imageUrl;
+        });
+      }
     } catch (e) {
       print('Error uploading profile image: $e');
     }
@@ -97,8 +106,25 @@ class _ProfilePageState extends State<ProfilePage> {
                   ? FileImage(_profileImage!)
                   : (_profileImageUrl != null
                       ? NetworkImage(_profileImageUrl!)
-                      : const AssetImage('assets/images/profile.JPG'))
+                      : const AssetImage('assets/images/Placeholder.png'))
                       as ImageProvider,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _fullName ?? 'Nama Lengkap', // Tampilkan nama lengkap
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            _email ?? 'Email', // Tampilkan email
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
             ),
           ),
           const SizedBox(height: 20),

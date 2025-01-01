@@ -41,11 +41,6 @@ class SideMenu extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 30,
-                      backgroundImage: AssetImage(
-                          'assets/images/profile.JPG'), // Ganti dengan path gambar profil Anda
-                    ),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,13 +107,6 @@ class SideMenu extends StatelessWidget {
                         builder: (context) => const FavouritePage(),
                       ),
                     );
-                  },
-                ),
-                _buildMenuItem(
-                  icon: Icons.history,
-                  title: 'History',
-                  onTap: () {
-                    // Tambahkan navigasi ke halaman History
                   },
                 ),
                 _buildMenuItem(
