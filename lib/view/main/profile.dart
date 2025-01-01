@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tubes_ppb_sem5/view/main/profile/upload.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -12,25 +14,61 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   File? _profileImage;
+  String? _profileImageUrl; // URL dari foto profil di Firebase
   final List<Map<String, dynamic>> _recipes = []; // Data untuk grid resep
-
   final ImagePicker _picker = ImagePicker();
 
-  // Pilih Foto dari Galeri
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileImage(); // Ambil URL foto profil dari Firestore
+  }
+
+  Future<void> _fetchProfileImage() async {
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc('RW7xppDpyNfBdcNh5a3HxpD9yJd2') // Ganti dengan ID dokumen user Anda
+        .get();
+
+    if (userDoc.exists && userDoc.data()!['profileImageUrl'] != null) {
+      setState(() {
+        _profileImageUrl = userDoc.data()!['profileImageUrl'];
+      });
+    }
+  }
+
   Future<void> _pickProfileImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _profileImage = File(pickedFile.path);
       });
+      await _uploadProfileImage();
     }
   }
 
-  // Tambahkan Resep Baru dari upload.dart
-  void _addRecipe(Map<String, dynamic> newRecipe) {
-    setState(() {
-      _recipes.add(newRecipe);
-    });
+  Future<void> _uploadProfileImage() async {
+    if (_profileImage == null) return;
+
+    try {
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final uploadTask = await storageRef.putFile(_profileImage!);
+      final imageUrl = await uploadTask.ref.getDownloadURL();
+
+      // Simpan URL ke Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc('RW7xppDpyNfBdcNh5a3HxpD9yJd2') // Ganti dengan ID dokumen user Anda
+          .update({'profileImageUrl': imageUrl});
+
+      setState(() {
+        _profileImageUrl = imageUrl;
+      });
+    } catch (e) {
+      print('Error uploading profile image: $e');
+    }
   }
 
   @override
@@ -57,7 +95,10 @@ class _ProfilePageState extends State<ProfilePage> {
               radius: 50,
               backgroundImage: _profileImage != null
                   ? FileImage(_profileImage!)
-                  : const AssetImage('assets/images/profile.JPG') as ImageProvider,
+                  : (_profileImageUrl != null
+                      ? NetworkImage(_profileImageUrl!)
+                      : const AssetImage('assets/images/profile.JPG'))
+                      as ImageProvider,
             ),
           ),
           const SizedBox(height: 20),
@@ -73,7 +114,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 MaterialPageRoute(builder: (context) => UploadPage()),
               );
               if (newRecipe != null) {
-                _addRecipe(newRecipe);
+                setState(() {
+                  _recipes.add(newRecipe);
+                });
               }
             },
             child: const Text('Upload'),
@@ -103,7 +146,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 5),
                       Text(
                         recipe['title'],
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 12),
                       ),
                     ],
                   ),
