@@ -16,4 +16,19 @@ class DatabaseService {
       };
     }).toList();
   }
+  final CollectionReference favouritesCollection =
+      FirebaseFirestore.instance.collection('favourites');
+      
+  // Fungsi untuk mendapatkan data favorit
+  Future<List<Map<String, dynamic>>> getFavourites() async {
+    QuerySnapshot snapshot = await favouritesCollection.get();
+    return snapshot.docs.map((doc) {
+      return {
+        'name': doc['name'],
+        'img': doc['img'].toString(),
+        'bahan': List<String>.from(doc['bahan']),
+        'step': List<String>.from(doc['step']),
+      };
+    }).toList();
+  }
 }

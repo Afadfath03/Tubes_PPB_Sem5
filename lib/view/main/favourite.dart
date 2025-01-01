@@ -1,7 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:tubes_ppb_sem5/services/database.dart';
 
-class FavouritePage extends StatelessWidget {
+class FavouritePage extends StatefulWidget {
   const FavouritePage({super.key});
+
+  @override
+  _FavouritePageState createState() => _FavouritePageState();
+}
+
+class _FavouritePageState extends State<FavouritePage> {
+  List<Map<String, dynamic>> favourites = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFavourites();
+  }
+
+  Future<void> _fetchFavourites() async {
+    DatabaseService dbService = DatabaseService();
+    try {
+      final data = await dbService.getFavourites();
+      setState(() {
+        favourites = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // Handle error jika diperlukan
+      print('Error fetching favourites: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -9,7 +41,7 @@ class FavouritePage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header Container untuk Favoritku dan Search Recipe
+            // Header Container untuk Favorit dan Search Recipe
             Container(
               color: Colors.black,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -19,8 +51,7 @@ class FavouritePage extends StatelessWidget {
                   Row(
                     children: [
                       IconButton(
-                        icon:
-                            const Icon(Icons.arrow_back, color: Colors.orange),
+                        icon: const Icon(Icons.arrow_back, color: Colors.orange),
                         onPressed: () {
                           Navigator.pop(context);
                         },
@@ -46,8 +77,7 @@ class FavouritePage extends StatelessWidget {
                             fillColor: Colors.white10,
                             hintText: 'Search Recipe',
                             hintStyle: const TextStyle(color: Colors.white54),
-                            prefixIcon:
-                                const Icon(Icons.search, color: Colors.white),
+                            prefixIcon: const Icon(Icons.search, color: Colors.white),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide.none,
@@ -63,8 +93,7 @@ class FavouritePage extends StatelessWidget {
                           color: Colors.orange,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child:
-                            const Icon(Icons.filter_list, color: Colors.white),
+                        child: const Icon(Icons.filter_list, color: Colors.white),
                       ),
                     ],
                   ),
@@ -75,41 +104,28 @@ class FavouritePage extends StatelessWidget {
             Expanded(
               child: Container(
                 color: Colors.black,
-                child: ListView(
-                  padding: const EdgeInsets.all(8.0),
-                  children: const [
-                    RecipeItem(
-                      title: 'Nasi Goreng',
-                      imagePath: 'assets/images/Favorite/nasi_goreng.png',
-                      cookingTime: '10:00',
-                    ),
-                    RecipeItem(
-                      title: 'Mie Nyemek',
-                      imagePath: 'assets/images/Favorite/mie_nyemek.png',
-                      cookingTime: '5:00',
-                    ),
-                    RecipeItem(
-                      title: 'Tahu Cabe Garam',
-                      imagePath: 'assets/images/Favorite/tahu_cabe_garam.png',
-                      cookingTime: '5:00',
-                    ),
-                    RecipeItem(
-                      title: 'Cah Kangkung',
-                      imagePath: 'assets/images/Favorite/cak_kangkung.png',
-                      cookingTime: '5:00',
-                    ),
-                    RecipeItem(
-                      title: 'Sosis Telur Sambal',
-                      imagePath: 'assets/images/Favorite/telur_sosis.png',
-                      cookingTime: '5:00',
-                    ),
-                    RecipeItem(
-                      title: 'Telur Orak Arik',
-                      imagePath: 'assets/images/Favorite/telur_orak_arik.png',
-                      cookingTime: '5:00',
-                    ),
-                  ],
-                ),
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : favourites.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No favourites found!',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(8.0),
+                            itemCount: favourites.length,
+                            itemBuilder: (context, index) {
+                              final item = favourites[index];
+                              return RecipeItem(
+                                title: item['name'],
+                                imagePath: 'assets/images/Favorite/${item['img']}', // Path lokal
+                                bahan: item['bahan'],
+                                step: item['step'],
+                              );
+                            },
+                          ),
               ),
             ),
           ],
@@ -122,32 +138,41 @@ class FavouritePage extends StatelessWidget {
 class RecipeItem extends StatelessWidget {
   final String title;
   final String imagePath;
-  final String cookingTime;
+  final List<String> bahan;
+  final List<String> step;
 
   const RecipeItem({
     super.key,
     required this.title,
     required this.imagePath,
-    required this.cookingTime,
+    required this.bahan,
+    required this.step,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white10,
-      child: ListTile(
+      child: ExpansionTile(
         leading: CircleAvatar(
-          backgroundImage: AssetImage(imagePath),
+          backgroundImage: AssetImage(imagePath), // Menggunakan gambar lokal dari assets
         ),
         title: Text(title, style: const TextStyle(color: Colors.white)),
-        subtitle: Row(
-          children: [
-            const Icon(Icons.timer, color: Colors.white54, size: 16),
-            const SizedBox(width: 4),
-            Text(cookingTime, style: const TextStyle(color: Colors.white54)),
-          ],
-        ),
-        trailing: const Icon(Icons.favorite, color: Colors.orange),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Bahan:', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                ...bahan.map((b) => Text('- $b', style: const TextStyle(color: Colors.white))),
+                const SizedBox(height: 8),
+                const Text('Step:', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                ...step.map((s) => Text('- $s', style: const TextStyle(color: Colors.white))),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
