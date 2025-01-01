@@ -1,8 +1,7 @@
-
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tubes_ppb_sem5/view/main/profile/upload.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -13,7 +12,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   File? _profileImage;
-  final List<Map<String, dynamic>> _recipes = []; // Placeholder untuk data resep
+  final List<Map<String, dynamic>> _recipes = []; // Data untuk grid resep
 
   final ImagePicker _picker = ImagePicker();
 
@@ -27,16 +26,10 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Tambahkan Resep Baru
-  void _addRecipe(String title, String duration, String serving, String recipe, File? image) {
+  // Tambahkan Resep Baru dari upload.dart
+  void _addRecipe(Map<String, dynamic> newRecipe) {
     setState(() {
-      _recipes.add({
-        'title': title,
-        'duration': duration,
-        'serving': serving,
-        'recipe': recipe,
-        'image': image,
-      });
+      _recipes.add(newRecipe);
     });
   }
 
@@ -73,8 +66,15 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundColor: Colors.orange,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            onPressed: () {
-              _showUploadPopup(context);
+            onPressed: () async {
+              // Navigasi ke UploadPage dan tambahkan resep baru
+              final newRecipe = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UploadPage()),
+              );
+              if (newRecipe != null) {
+                _addRecipe(newRecipe);
+              }
             },
             child: const Text('Upload'),
           ),
@@ -113,160 +113,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showUploadPopup(BuildContext context) {
-    final _titleController = TextEditingController();
-    final _durationController = TextEditingController();
-    final _servingController = TextEditingController();
-    final _recipeController = TextEditingController();
-    File? _recipeImage;
-
-    Future<void> _pickRecipeImage() async {
-      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        setState(() {
-          _recipeImage = File(pickedFile.path);
-        });
-      }
-    }
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16,
-            right: 16,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: Text(
-                      'Add Recipe',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _titleController,
-                  decoration: InputDecoration(
-                    labelText: 'Title',
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _durationController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Duration',
-                          hintText: 'e.g. 15 min',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextField(
-                        controller: _servingController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Serving',
-                          hintText: 'e.g. 2 servings',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _recipeController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    labelText: 'Recipe',
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: _pickRecipeImage,
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.orange),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        _recipeImage == null ? 'Upload Photo' : 'Photo Selected',
-                        style: const TextStyle(color: Colors.orange),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  onPressed: () {
-                    if (_recipeImage != null) {
-                      _addRecipe(
-                        _titleController.text,
-                        _durationController.text,
-                        _servingController.text,
-                        _recipeController.text,
-                        _recipeImage,
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('Save'),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }
