@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tubes_ppb_sem5/services/user_data.dart';
 import 'package:tubes_ppb_sem5/view/main/favourite.dart';
 import 'package:tubes_ppb_sem5/services/user_auth.dart';
+import 'package:tubes_ppb_sem5/view/main/profile.dart';
 
 Future<String> getfullname() async {
   UserData userDataService = UserData();
@@ -73,11 +74,20 @@ class SideMenu extends StatelessWidget {
                             }
                           },
                         ),
-                        const Text(
-                          'View Profile',
-                          style: TextStyle(
-                            color: Colors.orange,
-                            fontSize: 14,
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ProfilePage()),
+                            );
+                          },
+                          child: const Text(
+                            'View Profile',
+                            style: TextStyle(
+                              color: Colors.orange,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                       ],
